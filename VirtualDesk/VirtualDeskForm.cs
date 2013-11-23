@@ -62,7 +62,6 @@ namespace VirtualDesk
         {
             if (VirtualDesktopManager.Switch(VirtualDesktopManager.DesktopPointer))
             {
-
                 textBox1.AppendText("Switched to new desktop.\r\n");
             }
         }
@@ -71,9 +70,14 @@ namespace VirtualDesk
         {
             if (VirtualDesktopManager.Switch(VirtualDesktopManager.MainDesktop))
             {
-
                 textBox1.AppendText("Switched to main.\r\n");
             }
+        }
+
+        public void ForceClose()
+        {
+            FormClosing -= VirtualDeskForm_FormClosing;
+            Close();
         }
     }
 }

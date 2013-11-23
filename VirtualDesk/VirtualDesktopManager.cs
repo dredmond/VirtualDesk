@@ -73,6 +73,7 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
 
             while (Running)
             {
+                Application.DoEvents();
                 Thread.Sleep(1);
             }
 
@@ -99,6 +100,8 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
 
             CloseInterface();
             var ret = SetThreadDesktop(desktop);
+            Console.WriteLine("Switched: " + ret);
+
             OpenInterface();
 
             return ret;
@@ -127,7 +130,8 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
             if (_form == null)
                 return;
 
-            _form.Close();
+            _form.ForceClose();
+            _form = null;
         }
     }
 }
