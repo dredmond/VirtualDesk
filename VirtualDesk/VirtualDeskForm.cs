@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace VirtualDesk
 {
@@ -91,6 +83,7 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
             Location = new Point(_initialX, _initialY);
             Move += VirtualDeskForm_Move;
             FormClosing += VirtualDeskForm_FormClosing;
+            Disposed += VirtualDeskForm_Disposed;
 
             _desktopPointer = CreateDesktop("NewDesktop", IntPtr.Zero, IntPtr.Zero, 0, (uint)AccessRights.GENERIC_ALL, IntPtr.Zero);
             _mainDesktop = GetThreadDesktop(GetCurrentThreadId());
@@ -99,16 +92,27 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
             textBox1.AppendText("Main Desktop Pointer: " + _mainDesktop + "\r\n");
         }
 
+        void VirtualDeskForm_Disposed(object sender, EventArgs e)
+        {
+            Switch(_mainDesktop);
+
+            if (_desktopPointer == IntPtr.Zero)
+                return;
+
+            CloseDesktop(_desktopPointer);
+            _desktopPointer = IntPtr.Zero;
+        }
+
         void VirtualDeskForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            desktop1_Click(null, null);
+            Switch(_mainDesktop);
 
-            if (_desktopPointer != IntPtr.Zero)
+            if (_desktopPointer == IntPtr.Zero) 
+                return;
+            
+            if (!CloseDesktop(_desktopPointer))
             {
-                if (!CloseDesktop(_desktopPointer))
-                {
-                    e.Cancel = true;
-                }
+                e.Cancel = true;
             }
         }
 
@@ -119,39 +123,34 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
 
         private void desktop2_Click(object sender, EventArgs e)
         {
-            if (SetThreadDesktop(_desktopPointer))
-            {
-                textBox1.AppendText("SetThread Success!\r\n");
-            }
-            else
-            {
-                textBox1.AppendText("SetThreadFailed Failed\r\n");
-            }
-
-            if (SwitchDesktop(_desktopPointer))
-            {
-                textBox1.AppendText("Switch Success!\r\n");
-            }
-            else
-            {
-                textBox1.AppendText("Switch Failed\r\n");
-            }
+            Switch(_desktopPointer);
         }
 
         private void desktop1_Click(object sender, EventArgs e)
         {
-            if (SetThreadDesktop(_mainDesktop))
+            Switch(_mainDesktop);
+        }
+
+        private void Switch(IntPtr desktop)
+        {
+            if (desktop == IntPtr.Zero)
             {
-                textBox1.AppendText("SetThread Success!\r\n");
-            }
-            else
-            {
-                textBox1.AppendText("SetThreadFailed Failed\r\n");
+                textBox1.AppendText("Desktop pointer cannot be null.\r\n");
+                return;
             }
 
-            if (SwitchDesktop(_mainDesktop))
+            if (SwitchDesktop(desktop))
             {
                 textBox1.AppendText("Switch Success!\r\n");
+
+                if (SetThreadDesktop(desktop))
+                {
+                    textBox1.AppendText("SetThread Success!\r\n");
+                }
+                else
+                {
+                    textBox1.AppendText("SetThreadFailed Failed\r\n");
+                }
             }
             else
             {
