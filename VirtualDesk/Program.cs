@@ -14,9 +14,12 @@ namespace VirtualDesk
         [STAThread]
         static void Main()
         {
+            var task = new Task(VirtualDesktopManager.VirtualDeskThread);
+            task.Start();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new VirtualDeskForm());
+            Application.Run();
         }
     }
 }
