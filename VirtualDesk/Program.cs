@@ -19,8 +19,6 @@ namespace VirtualDesk
 
             var task = new Task(VirtualDesktopManager.VirtualDeskThread);
             task.Start();
-            
-            task.Wait();
         }
     }
 }

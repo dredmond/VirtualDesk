@@ -21,15 +21,15 @@ namespace VirtualDesk
             Move += VirtualDeskForm_Move;
             FormClosing += VirtualDeskForm_FormClosing;
 
-            textBox1.AppendText("Desktop Pointer: " + VirtualDesktopManager.DesktopPointer + "\r\n");
-            textBox1.AppendText("Main Desktop Pointer: " + VirtualDesktopManager.MainDesktop + "\r\n");
+            textBox1.AppendText("Alt Desktop Pointer: " + VirtualDesktopManager.AltDesktop.Name + "\r\n");
+            textBox1.AppendText("Main Desktop Pointer: " + VirtualDesktopManager.MainDesktop.Name + "\r\n");
         }
 
         void VirtualDeskForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                VirtualDesktopManager.Running = false;
+                //VirtualDesktopManager.Running = false;
             }
         }
 
@@ -40,7 +40,7 @@ namespace VirtualDesk
 
         private void desktop2_Click(object sender, EventArgs e)
         {
-            if (VirtualDesktopManager.Switch(VirtualDesktopManager.DesktopPointer))
+            if (VirtualDesktopManager.AltDesktop.Switch())
             {
                 textBox1.AppendText("Switched to new desktop.\r\n");
             }
@@ -48,7 +48,7 @@ namespace VirtualDesk
 
         private void desktop1_Click(object sender, EventArgs e)
         {
-            if (VirtualDesktopManager.Switch(VirtualDesktopManager.MainDesktop))
+            if (VirtualDesktopManager.MainDesktop.Switch())
             {
                 textBox1.AppendText("Switched to main.\r\n");
             }

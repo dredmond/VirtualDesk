@@ -1,21 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using VirtualDesk.Properties;
 
 namespace VirtualDesk
 {
     public class VDesk : IDisposable
     {
         private IntPtr _desktopPointer;
-        private Thread _thread;
         private bool _disposed;
-        private bool _running;
-        private List<IntPtr> _windows; 
+        private VirtualDeskForm _vDeskForm;
 
         public string Name { get; private set; }
+
+        public static VDesk GetMainDesktop()
+        {
+            var id = WindowsApi.GetCurrentThreadId();
+            var desktopPointer = WindowsApi.GetThreadDesktop(id);
+
+            return new VDesk("MainDesktop", desktopPointer);
+        }
+
+        protected VDesk(string name, IntPtr desktopPointer)
+        {
+            Name = name;
+            _desktopPointer = desktopPointer;
+
+            StartThread();
+        }
 
         public VDesk(string name)
         {
@@ -23,44 +40,46 @@ namespace VirtualDesk
 
             _desktopPointer = WindowsApi.CreateDesktop(name, IntPtr.Zero, IntPtr.Zero, 0,
                 (uint)WindowsApi.AccessRights.GENERIC_ALL, IntPtr.Zero);
+
+            StartThread();
         }
 
-
-
-        public void Start()
+        private void StartThread()
         {
-            if (_running)
-                return;
+            if (_desktopPointer == IntPtr.Zero)
+            {
+                throw new Exception("Failed to create desktop.");
+            }
 
-            _running = true;
-            _thread = new Thread(ThreadProc);
+            var _thread = new Thread(ThreadProc);
             _thread.Start();
         }
 
         private void ThreadProc()
         {
-            var ret = false;
+            var ret = WindowsApi.SetThreadDesktop(_desktopPointer);
+            Console.WriteLine(Resources.MovedThreadToDesktop, Name, ret);
 
-            while (_running)
-            {
-                Thread.Sleep(5000);
-
-                ret = VirtualDesktopManager.SetThread(VirtualDesktopManager.DesktopPointer);
-                Console.WriteLine("Switched: " + ret + "\r\n");
-            }
-
-            ret = VirtualDesktopManager.SetThread(VirtualDesktopManager.MainDesktop);
-            Console.WriteLine("Switched Back: " + ret + "\r\n");
+            _vDeskForm = new VirtualDeskForm();
+            Application.Run(_vDeskForm);
         }
 
-        public void Stop()
+        public bool Switch()
         {
-            if (!_running)
-                return;
+            return WindowsApi.SwitchDesktop(_desktopPointer);
+        }
 
-            _running = false;
-            _thread.Join();
-            _thread = null;
+        public void CloseAllWindows()
+        {
+            var ret = WindowsApi.EnumDesktopWindows(_desktopPointer, CloseWindowProc, IntPtr.Zero);
+            Console.WriteLine(Resources.ClosedAllWindows, Name, ret);
+        }
+
+        private bool CloseWindowProc(IntPtr hwnd, IntPtr lParam)
+        {
+            var ret = WindowsApi.SendMessage(hwnd, WindowsApi.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            Console.WriteLine(Resources.ClosedWindow, Name, hwnd, ret);
+            return true;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -70,7 +89,14 @@ namespace VirtualDesk
             
             if (disposing)
             {
-                _running = false;
+                
+            }
+
+            if (_desktopPointer != IntPtr.Zero)
+            {
+                CloseAllWindows();
+                WindowsApi.CloseDesktop(_desktopPointer);
+                _desktopPointer = IntPtr.Zero;
             }
 
             _disposed = true;
