@@ -20,15 +20,9 @@ namespace VirtualDesk
             Location = new Point(_initialX, _initialY);
             Move += VirtualDeskForm_Move;
             FormClosing += VirtualDeskForm_FormClosing;
-            Disposed += VirtualDeskForm_Disposed;
 
             textBox1.AppendText("Desktop Pointer: " + VirtualDesktopManager.DesktopPointer + "\r\n");
             textBox1.AppendText("Main Desktop Pointer: " + VirtualDesktopManager.MainDesktop + "\r\n");
-        }
-
-        void VirtualDeskForm_Disposed(object sender, EventArgs e)
-        {
-
         }
 
         void VirtualDeskForm_FormClosing(object sender, FormClosingEventArgs e)

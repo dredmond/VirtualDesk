@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VirtualDesk
 {
@@ -35,6 +31,16 @@ namespace VirtualDesk
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetThreadDesktop(int dwThreadId);
+
+        public delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool EnumDesktopWindows(IntPtr hDesktop, EnumWindowsProc lpfn, IntPtr lParam);
+
+        public const uint WM_CLOSE = 0x0010;
+
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
         public static extern bool SetThreadDesktop(IntPtr hDesktop);
