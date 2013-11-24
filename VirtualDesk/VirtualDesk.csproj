@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VDesk.cs" />
     <Compile Include="VirtualDeskForm.cs">
       <SubType>Form</SubType>
     </Compile>

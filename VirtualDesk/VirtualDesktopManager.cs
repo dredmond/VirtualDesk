@@ -16,6 +16,7 @@ namespace VirtualDesk
         public static IntPtr MainDesktop = IntPtr.Zero;
         private static VirtualDeskForm _form;
         public static bool Running = true;
+        private static VDesk _vDesk;
 
         /*
          * DESKTOP_CREATEMENU (0x0004L)	Required to create a menu on the desktop.
@@ -29,7 +30,7 @@ DESKTOP_SWITCHDESKTOP (0x0100L)	Required to activate the desktop using the Switc
 DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
 
         [Flags]
-        enum AccessRights : uint
+        public enum AccessRights : uint
         {
             DESKTOP_CREATEMENU = 0x0004,
             DESKTOP_CREATEWINDOW = 0x0002,
@@ -46,23 +47,26 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
         }
 
         [DllImport("user32.dll")]
-        private static extern IntPtr CreateDesktop(string lpszDesktop, IntPtr lpszDevice, IntPtr pDevmode, int dwFlags,
+        public static extern IntPtr CreateDesktop(string lpszDesktop, IntPtr lpszDevice, IntPtr pDevmode, int dwFlags,
             uint dwDesiredAccess, IntPtr lpsa);
 
         [DllImport("user32.dll")]
-        private static extern bool CloseDesktop(IntPtr hDesktop);
+        public static extern bool CloseDesktop(IntPtr hDesktop);
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetThreadDesktop(int dwThreadId);
+        public static extern IntPtr GetThreadDesktop(int dwThreadId);
 
         [DllImport("user32.dll")]
-        private static extern bool SetThreadDesktop(IntPtr hDesktop);
+        public static extern bool SetThreadDesktop(IntPtr hDesktop);
 
         [DllImport("user32.dll")]
-        private static extern bool SwitchDesktop(IntPtr hDesktop);
+        public static extern bool SwitchDesktop(IntPtr hDesktop);
 
         [DllImport("Kernel32.dll")]
-        private static extern int GetCurrentThreadId();
+        public static extern int GetCurrentThreadId();
+
+        [DllImport("Kernel32.dll")]
+        public static extern uint GetLastError();
 
         public static void VirtualDeskThread()
         {
@@ -71,11 +75,17 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
             MainDesktop = GetThreadDesktop(threadId);
             OpenInterface();
 
+            _vDesk = new VDesk();
+            _vDesk.Start();
+
             while (Running)
             {
                 Application.DoEvents();
                 Thread.Sleep(1);
             }
+
+            _vDesk.Stop();
+            _vDesk.Dispose();
 
             SwitchDesktop(MainDesktop);
             CloseInterface();
@@ -98,11 +108,11 @@ DESKTOP_WRITEOBJECTS (0x0080L)	Required to write objects on the desktop.*/
             if (desktop == IntPtr.Zero)
                 return false;
 
-            CloseInterface();
+            //CloseInterface();
             var ret = SetThreadDesktop(desktop);
             Console.WriteLine("Switched: " + ret);
 
-            OpenInterface();
+            //OpenInterface();
 
             return ret;
         }
