@@ -13,11 +13,19 @@ namespace VirtualDesk
         private Thread _thread;
         private bool _disposed;
         private bool _running;
+        private List<IntPtr> _windows; 
 
-        public VDesk()
+        public string Name { get; private set; }
+
+        public VDesk(string name)
         {
-            
+            Name = name;
+
+            _desktopPointer = WindowsApi.CreateDesktop(name, IntPtr.Zero, IntPtr.Zero, 0,
+                (uint)WindowsApi.AccessRights.GENERIC_ALL, IntPtr.Zero);
         }
+
+
 
         public void Start()
         {

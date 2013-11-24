@@ -71,6 +71,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualDesktopManager.cs" />
+    <Compile Include="WindowsApi.cs" />
     <EmbeddedResource Include="VirtualDeskForm.resx">
       <DependentUpon>VirtualDeskForm.cs</DependentUpon>
     </EmbeddedResource>

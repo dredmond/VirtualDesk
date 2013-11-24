@@ -10,20 +10,6 @@ namespace VirtualDesk
         private readonly int _initialX;
         private readonly int _initialY;
 
-        /*
-         * HDESK WINAPI GetThreadDesktop(
-              _In_  DWORD dwThreadId
-            );
-         * 
-         * BOOL WINAPI SetThreadDesktop(
-  _In_  HDESK hDesktop
-);
-         * 
-         * BOOL WINAPI SwitchDesktop(
-  _In_  HDESK hDesktop
-);
-         */
-
         public VirtualDeskForm()
         {
             InitializeComponent();
