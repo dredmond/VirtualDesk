@@ -27,10 +27,7 @@ namespace VirtualDesk
 
         void VirtualDeskForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                //VirtualDesktopManager.Running = false;
-            }
+            VirtualDesktopManager.Shutdown();
         }
 
         void VirtualDeskForm_Move(object sender, EventArgs e)

@@ -20,5 +20,20 @@ namespace VirtualDesk
             MainDesktop = VDesk.GetMainDesktop();
             AltDesktop = new VDesk("NewDesktop");
         }
+
+        public static void Shutdown()
+        {
+            if (MainDesktop != null)
+            {
+                MainDesktop.CloseAllWindows();
+                AltDesktop = null;
+            }
+
+            if (AltDesktop != null)
+            {
+                AltDesktop.CloseAllWindows();
+                AltDesktop = null;
+            }
+        }
     }
 }
