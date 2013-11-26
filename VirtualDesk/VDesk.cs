@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using VirtualDesk.Properties;
 
 namespace VirtualDesk
@@ -15,6 +16,7 @@ namespace VirtualDesk
         private IntPtr _desktopPointer;
         private bool _disposed;
         private VirtualDeskForm _vDeskForm;
+        private bool _shuttingDown = false;
 
         public string Name { get; private set; }
 
@@ -51,8 +53,8 @@ namespace VirtualDesk
                 throw new Exception("Failed to create desktop.");
             }
 
-            var _thread = new Thread(ThreadProc);
-            _thread.Start();
+            var thread = new Thread(ThreadProc);
+            thread.Start();
         }
 
         private void ThreadProc()
@@ -69,16 +71,46 @@ namespace VirtualDesk
             return WindowsApi.SwitchDesktop(_desktopPointer);
         }
 
+        public void DisplayWindowNames()
+        {
+            //var ret = WindowsApi.EnumDesktopWindows(_desktopPointer, DisplayWindowNamesProc, IntPtr.Zero);
+
+        }
+
+        private bool DisplayWindowNamesProc(IntPtr hwnd, IntPtr lParam)
+        {
+            var sb = new StringBuilder();
+            var ret = WindowsApi.GetWindowText(hwnd, sb, 512);
+            Console.WriteLine(@"Desktop: {2} Window: {0} {1}", sb, hwnd, Name);
+
+            return true;
+        }
+
         public void CloseAllWindows()
         {
-            var ret = WindowsApi.EnumDesktopWindows(_desktopPointer, CloseWindowProc, IntPtr.Zero);
-            Console.WriteLine(Resources.ClosedAllWindows, Name, ret);
+            if (_shuttingDown)
+                return;
+
+            _shuttingDown = true;
+
+            if (_vDeskForm != null)
+            {
+                WindowsApi.SendMessage(_vDeskForm.Handle, WindowsApi.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                _vDeskForm = null;
+            }
+
+            //var ret = WindowsApi.EnumDesktopWindows(_desktopPointer, CloseWindowProc, IntPtr.Zero);
+            //Console.WriteLine(Resources.ClosedAllWindows, Name, ret);
         }
 
         private bool CloseWindowProc(IntPtr hwnd, IntPtr lParam)
         {
-            var ret = WindowsApi.SendMessage(hwnd, WindowsApi.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-            Console.WriteLine(Resources.ClosedWindow, Name, hwnd, ret);
+            //var ret = WindowsApi.SendMessage(hwnd, WindowsApi.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            //Console.WriteLine(Resources.ClosedWindow, Name, hwnd, ret);
+            //var sb = new StringBuilder();
+            //var ret = WindowsApi.GetWindowText(hwnd, sb, 512);
+            //Console.WriteLine(@"Closing Window: {0} {1}", sb, hwnd);
+
             return true;
         }
 

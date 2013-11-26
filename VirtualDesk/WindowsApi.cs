@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace VirtualDesk
 {
@@ -53,5 +54,8 @@ namespace VirtualDesk
 
         [DllImport("Kernel32.dll")]
         public static extern uint GetLastError();
+
+        [DllImport("User32.dll")]
+        public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int nMaxCount);
     }
 }

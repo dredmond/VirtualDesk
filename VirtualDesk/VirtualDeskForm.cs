@@ -20,9 +20,17 @@ namespace VirtualDesk
             Location = new Point(_initialX, _initialY);
             Move += VirtualDeskForm_Move;
             FormClosing += VirtualDeskForm_FormClosing;
+            Shown += VirtualDeskForm_Shown;
 
             textBox1.AppendText("Alt Desktop Pointer: " + VirtualDesktopManager.AltDesktop.Name + "\r\n");
             textBox1.AppendText("Main Desktop Pointer: " + VirtualDesktopManager.MainDesktop.Name + "\r\n");
+        }
+
+        void VirtualDeskForm_Shown(object sender, EventArgs e)
+        {
+            VirtualDesktopManager.MainDesktop.DisplayWindowNames();
+            VirtualDesktopManager.AltDesktop.DisplayWindowNames();
+            BringToFront();
         }
 
         void VirtualDeskForm_FormClosing(object sender, FormClosingEventArgs e)

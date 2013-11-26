@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace VirtualDesk
 {
-    public class VirtualDesktopManager
+    public static class VirtualDesktopManager
     {
         public static VDesk AltDesktop;
         public static VDesk MainDesktop;
@@ -26,7 +26,7 @@ namespace VirtualDesk
             if (MainDesktop != null)
             {
                 MainDesktop.CloseAllWindows();
-                AltDesktop = null;
+                MainDesktop = null;
             }
 
             if (AltDesktop != null)
