@@ -12,13 +12,13 @@ namespace VirtualDesk
 {
     public static class VirtualDesktopManager
     {
-        public static VDesk AltDesktop;
+        //public static VDesk AltDesktop;
         public static VDesk MainDesktop;
 
         public static void VirtualDeskThread()
         {
             MainDesktop = VDesk.GetMainDesktop();
-            AltDesktop = new VDesk("NewDesktop");
+            //AltDesktop = new VDesk("NewDesktop");
         }
 
         public static void Shutdown()
@@ -29,11 +29,14 @@ namespace VirtualDesk
                 MainDesktop = null;
             }
 
+            // Not working as intended right now.
+            /*
             if (AltDesktop != null)
             {
                 AltDesktop.CloseAllWindows();
                 AltDesktop = null;
             }
+            */
         }
     }
 }

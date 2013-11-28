@@ -64,6 +64,8 @@ namespace VirtualDesk
 
             _vDeskForm = new VirtualDeskForm();
             Application.Run(_vDeskForm);
+
+
         }
 
         public bool Switch()
