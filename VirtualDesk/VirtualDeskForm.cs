@@ -21,15 +21,30 @@ namespace VirtualDesk
             Move += VirtualDeskForm_Move;
             FormClosing += VirtualDeskForm_FormClosing;
             Shown += VirtualDeskForm_Shown;
+            desktopListbox.DoubleClick +=desktopListbox_DoubleClick;
 
-            textBox1.AppendText("Alt Desktop Pointer: " + VirtualDesktopManager.AltDesktop.Name + "\r\n");
+            //textBox1.AppendText("Alt Desktop Pointer: " + VirtualDesktopManager.AltDesktop.Name + "\r\n");
             textBox1.AppendText("Main Desktop Pointer: " + VirtualDesktopManager.MainDesktop.Name + "\r\n");
+
+            foreach (var desktop in VirtualDesktopManager.AlternateDesktops)
+            {
+                textBox1.AppendText("Alternate Desktop Pointer: " + desktop.Name + "\r\n");
+                desktopListbox.Items.Add(desktop);
+            }
+        }
+
+        void desktopListbox_DoubleClick(object sender, EventArgs e)
+        {
+            var i = desktopListbox.SelectedIndex;
+
+            MessageBox.Show("Double Clicked " + i);
         }
 
         void VirtualDeskForm_Shown(object sender, EventArgs e)
         {
-            VirtualDesktopManager.MainDesktop.DisplayWindowNames();
-            VirtualDesktopManager.AltDesktop.DisplayWindowNames();
+            //VirtualDesktopManager.MainDesktop.DisplayWindowNames();
+            //VirtualDesktopManager.AltDesktop.DisplayWindowNames();
+            TopMost = true;
             BringToFront();
         }
 
@@ -42,7 +57,8 @@ namespace VirtualDesk
         {
             Location = new Point(_initialX, _initialY);
         }
-
+        
+        /*
         private void desktop2_Click(object sender, EventArgs e)
         {
             if (VirtualDesktopManager.AltDesktop.Switch())
@@ -58,6 +74,7 @@ namespace VirtualDesk
                 textBox1.AppendText("Switched to main.\r\n");
             }
         }
+        */
 
         public void ForceClose()
         {

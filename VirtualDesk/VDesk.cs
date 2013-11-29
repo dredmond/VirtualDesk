@@ -46,6 +46,11 @@ namespace VirtualDesk
             StartThread();
         }
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         private void StartThread()
         {
             if (_desktopPointer == IntPtr.Zero)
@@ -65,12 +70,29 @@ namespace VirtualDesk
             _vDeskForm = new VirtualDeskForm();
             Application.Run(_vDeskForm);
 
+            while (!_shuttingDown)
+            {
+                Thread.Sleep(1);
+            }
 
+            Application.Exit();
         }
 
         public bool Switch()
         {
             return WindowsApi.SwitchDesktop(_desktopPointer);
+        }
+
+        public static bool GetExistingDesktops(WindowsApi.EnumDesktopsProc desktopsProc)
+        {
+            return WindowsApi.EnumDesktops(IntPtr.Zero, desktopsProc, IntPtr.Zero);
+        }
+
+        public static VDesk OpenExistingDesktop(string name)
+        {
+            var ptr = WindowsApi.OpenDesktop(name, 0, false, (uint)WindowsApi.AccessRights.GENERIC_ALL);
+
+            return ptr == IntPtr.Zero ? null : new VDesk(name, ptr);
         }
 
         public void DisplayWindowNames()
@@ -97,8 +119,8 @@ namespace VirtualDesk
 
             if (_vDeskForm != null)
             {
-                WindowsApi.SendMessage(_vDeskForm.Handle, WindowsApi.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-                _vDeskForm = null;
+                //WindowsApi.SendMessage(_vDeskForm.Handle, WindowsApi.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                //_vDeskForm = null;
             }
 
             //var ret = WindowsApi.EnumDesktopWindows(_desktopPointer, CloseWindowProc, IntPtr.Zero);

@@ -28,12 +28,19 @@ namespace VirtualDesk
             uint dwDesiredAccess, IntPtr lpsa);
 
         [DllImport("user32.dll")]
+        public static extern IntPtr OpenDesktop(string lpszDesktop, int dwFlags, bool fInherit, uint dwDesiredAccess);
+
+        [DllImport("user32.dll")]
         public static extern bool CloseDesktop(IntPtr hDesktop);
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetThreadDesktop(int dwThreadId);
 
         public delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+        public delegate bool EnumDesktopsProc(string lpszDesktop, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool EnumDesktops(IntPtr hwinsta, EnumDesktopsProc lpfn, IntPtr lParam);
 
         [DllImport("user32.dll")]
         public static extern bool EnumDesktopWindows(IntPtr hDesktop, EnumWindowsProc lpfn, IntPtr lParam);

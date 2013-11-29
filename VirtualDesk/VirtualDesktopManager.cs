@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
@@ -14,11 +15,40 @@ namespace VirtualDesk
     {
         //public static VDesk AltDesktop;
         public static VDesk MainDesktop;
+        public static List<VDesk> AlternateDesktops;
 
         public static void VirtualDeskThread()
         {
             MainDesktop = VDesk.GetMainDesktop();
-            //AltDesktop = new VDesk("NewDesktop");
+            AlternateDesktops = new List<VDesk>
+            {
+                MainDesktop
+            };
+
+            // Loop through existing desktops and add them to our list.
+            if (VDesk.GetExistingDesktops(GetExistingDesktopsProc))
+            {
+                Console.WriteLine("Enumeration of Desktops Succeeded.");
+            }
+            else
+            {
+                Console.WriteLine("Enumeration of Desktops Failed.");
+            }
+
+            AlternateDesktops.Add(new VDesk("Test"));
+
+            
+        }
+
+        public static bool GetExistingDesktopsProc(string lpszDesktop, IntPtr lParam)
+        {
+            var desk = VDesk.OpenExistingDesktop(lpszDesktop);
+
+            if (desk == null)
+                return true;
+
+            AlternateDesktops.Add(desk);
+            return true;
         }
 
         public static void Shutdown()
@@ -29,14 +59,12 @@ namespace VirtualDesk
                 MainDesktop = null;
             }
 
-            // Not working as intended right now.
-            /*
-            if (AltDesktop != null)
+            foreach (var desktop in AlternateDesktops)
             {
-                AltDesktop.CloseAllWindows();
-                AltDesktop = null;
+                desktop.CloseAllWindows();
             }
-            */
+
+            AlternateDesktops.Clear();
         }
     }
 }
